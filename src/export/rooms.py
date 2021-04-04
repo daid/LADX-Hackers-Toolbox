@@ -4,6 +4,7 @@ import json
 import entityData
 import PIL.Image
 import constants
+import re as regex
 
 
 MINIMAP_TYPES = {
@@ -203,7 +204,7 @@ def exportRooms(rom, path):
         if minimap:
             for idx in range(64):
                 room = layout[idx]
-                if (room != 0 or n == 11) and minimap[idx] != 0x7D:
+                if room != 0 or n == 11:
                     minimap_data[room + offset] = MINIMAP_TYPES[minimap[idx]]
 
     sidescroller_rooms = set()
@@ -326,16 +327,23 @@ def exportRooms(rom, path):
             data.addObject(entity[0], entity[1], entityData.NAME[entity[2]], "ENTITY")
 
         warps = re.getWarps()
-        for index, warp in enumerate(warps):
-            if warp.warp_type == 1:
-                data.properties["warp%d_type" % (index)] = "indoor"
-            elif warp.warp_type == 2:
-                data.properties["warp%d_type" % (index)] = "sidescroll"
+        for index in range(4):
+            if index < len(warps):
+                warp = warps[index]
+                if warp.warp_type == 1:
+                    data.properties["warp%d_type" % (index)] = "indoor"
+                elif warp.warp_type == 2:
+                    data.properties["warp%d_type" % (index)] = "sidescroll"
+                else:
+                    data.properties["warp%d_type" % (index)] = "overworld"
+                data.properties["warp%d_map" % (index)] = "%02x" % (warp.map_nr)
+                data.properties["warp%d_room" % (index)] = "%02x" % (warp.room & 0xFF)
+                data.properties["warp%d_target" % (index)] = "%d,%d" % (warp.target_x, warp.target_y)
             else:
-                data.properties["warp%d_type" % (index)] = "overworld"
-            data.properties["warp%d_map" % (index)] = "%02x" % (warp.map_nr)
-            data.properties["warp%d_room" % (index)] = "%02x" % (warp.room & 0xFF)
-            data.properties["warp%d_target" % (index)] = "%d,%d" % (warp.target_x, warp.target_y)
+                data.properties["warp%d_type" % (index)] = "none"
+                data.properties["warp%d_map" % (index)] = "00"
+                data.properties["warp%d_room" % (index)] = "00"
+                data.properties["warp%d_target" % (index)] = "0,0"
 
         room_nr = room_index
         if isinstance(room_nr, str):
@@ -485,6 +493,32 @@ def exportRooms(rom, path):
 
 
 def importRooms(rom, path):
+    minimap_address_per_room = {}
+    for n in range(13):
+        if n < 8:
+            minimapaddr = 0x2479 + n * 64
+        elif n == 12:  # collapsed tower
+            minimapaddr = 0x2479 + 8 * 64
+        elif n == 11: # color dungeon
+            minimapaddr = 0x2479 + 9 * 64
+        else:
+            minimapaddr = None
+
+        layout = bytearray(64)
+        data = json.load(open(os.path.join(path, "layout_%02x.world" % (n)), "rt"))
+        for mapdata in data["maps"]:
+            x = mapdata["x"] // 160
+            y = mapdata["y"] // 128
+            assert 0 <= x < 8 and 0 <= y < 8
+            room = int(regex.match(r"room([0-9a-f]+)\.json", mapdata["fileName"]).group(1), 16)
+            layout[x + y * 8] = room & 0xFF
+            if minimapaddr is not None:
+                minimap_address_per_room[room] = minimapaddr + x + y * 8
+        rom.banks[0x14][0x0220 + n * 64:0x0220 + n * 64+64] = layout
+
+    # Clear out all the minimap data
+    rom.banks[0x02][0x2479:0x2479+64*10] = b'\x7D' * 64 * 10
+
     for room_index in ALL_ROOMS:
         if isinstance(room_index, str):
             roomfilename = "room%s.json" % (room_index)
@@ -495,7 +529,6 @@ def importRooms(rom, path):
         data.load(os.path.join(path, roomfilename))
 
         re = roomEditor.RoomEditor(rom, room_index)
-        old_obj_count = len(re.objects)
         re.objects = []
         re.entities = []
 
@@ -512,7 +545,6 @@ def importRooms(rom, path):
                 elif data.tiles[n] in {0x08, 0x09, 0x0C, 0x44,
                             0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF}:
                     data.tiles[n] = 0x04  # Open tiles
-
 
             # Count each tile, to figure out the most common one as floor tile
             counts = {}
@@ -588,7 +620,7 @@ def importRooms(rom, path):
                 re.objects.insert(0, roomEditor.Object(x,y, int(name, 16)))
         for n in range(4):
             if "warp%d_type" % (n) in data.properties:
-                wtype = data.properties["warp%d_type" % (n)]
+                wtype = data.properties["warp%d_type" % (n)].lower()
                 wmap = data.properties["warp%d_map" % (n)]
                 wroom = data.properties["warp%d_room" % (n)]
                 wtarget = [int(n.strip()) for n in data.properties["warp%d_target" % (n)].split(",")]
@@ -598,6 +630,8 @@ def importRooms(rom, path):
                     wtype = 1
                 elif wtype == "sidescroll":
                     wtype = 2
+                else:
+                    continue
                 re.objects.append(roomEditor.ObjectWarp(wtype, int(wmap, 16), int(wroom, 16), wtarget[0], wtarget[1]))
 
         re.store(rom)
@@ -605,3 +639,11 @@ def importRooms(rom, path):
         if isinstance(room_index, int):
             rom.banks[0x14][0x0560 + room_index] = constants.CHEST_ITEMS[data.properties["CHESTITEM"]]
             rom.banks[0x3E][0x3800 + room_index] = constants.CHEST_ITEMS[data.properties["ROOMITEM"]]
+
+            if room_index > 0x100 and "EVENT_TRIGGER" in data.properties:
+                event = EVENT_TRIGGERS.index(data.properties["EVENT_TRIGGER"])
+                event |= EVENT_ACTIONS.index(data.properties["EVENT_ACTION"]) << 5
+                rom.banks[0x14][room_index - 0x100] = event
+
+            if room_index in minimap_address_per_room:
+                rom.banks[0x02][minimap_address_per_room[room_index]] = [k for k, v in MINIMAP_TYPES.items() if v == data.properties["MINIMAP"]][0]
