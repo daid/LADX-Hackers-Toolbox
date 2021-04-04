@@ -1,0 +1,4 @@
+Following files need to be placed or will be created here:
+
+origonal.gbc: Links Awakening DX 1.0 English version, without any modifications
+result.gbc: Newly build ROM with your changes

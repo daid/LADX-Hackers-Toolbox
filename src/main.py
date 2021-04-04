@@ -1,3 +1,11 @@
+# Ensure that pillow is installed before we do anything else.
+try:
+    import PIL.Image
+except ImportError:
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow"])
+
 import argparse
 import sys
 import os
