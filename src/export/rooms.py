@@ -148,7 +148,7 @@ class RoomData:
         for layer in data['layers']:
             if layer['type'] == "tilelayer":
                 for n in range(80):
-                    self.tiles[n] = layer['data'][n] - 1
+                    self.tiles[n] = max(0, layer['data'][n] - 1)
             elif layer['type'] == "objectgroup":
                 for obj in layer['objects']:
                     self.addObject((obj["x"] + obj["width"] // 2) // 16, (obj["y"] + obj["height"] // 2) // 16, obj["name"], obj["type"])
@@ -634,8 +634,6 @@ def importRooms(rom, path):
                     continue
                 re.objects.append(roomEditor.ObjectWarp(wtype, int(wmap, 16), int(wroom, 16), wtarget[0], wtarget[1]))
 
-        re.store(rom)
-
         if isinstance(room_index, int):
             rom.banks[0x14][0x0560 + room_index] = constants.CHEST_ITEMS[data.properties["CHESTITEM"]]
             rom.banks[0x3E][0x3800 + room_index] = constants.CHEST_ITEMS[data.properties["ROOMITEM"]]
@@ -647,3 +645,25 @@ def importRooms(rom, path):
 
             if room_index in minimap_address_per_room:
                 rom.banks[0x02][minimap_address_per_room[room_index]] = [k for k, v in MINIMAP_TYPES.items() if v == data.properties["MINIMAP"]][0]
+
+            m = regex.match(r"ZZ_overworld_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+).png", data.tileset_image)
+            if m and room_index < 0x100:
+                tileset_index, re.animation_id, palette_index, attributedata_bank, attributedata_addr = [int(v, 16) for v in m.groups()]
+                attributedata_addr += 0x4000
+
+                rom.banks[0x3F][0x2f00 + room_index] = tileset_index
+                rom.banks[0x1A][0x2476 + room_index] = attributedata_bank
+                rom.banks[0x1A][0x1E76 + room_index * 2] = attributedata_addr & 0xFF
+                rom.banks[0x1A][0x1E76 + room_index * 2 + 1] = (attributedata_addr >> 8)
+                rom.banks[0x21][0x02EF + room_index] = palette_index
+
+            m = regex.match(r"ZZ_indoor_([0-9a-f]+)_([0-9a-f]+).png", data.tileset_image)
+            if m and room_index >= 0x100:
+                tileset_index, re.animation_id = [int(v, 16) for v in m.groups()]
+                rom.banks[0x20][0x2eB3 + room_index - 0x100] = tileset_index
+
+            m = regex.match(r"ZZ_sidescroll_([0-9a-f]+).png", data.tileset_image)
+            if m and room_index >= 0x100:
+                re.animation_id = [int(v, 16) for v in m.groups()][0]
+
+        re.store(rom)
