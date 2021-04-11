@@ -104,7 +104,7 @@ class RoomData:
             self.tiles[x + y * 10] = tile
 
     def addObject(self, x, y, name, type):
-        self.objects.append((x, y, name, type))
+        self.objects.append((int(x), int(y), name, type))
 
     def save(self, filename):
         objects = []
@@ -145,12 +145,14 @@ class RoomData:
 
     def load(self, filename):
         data = json.load(open(filename, "rt"))
+        shown_warning = False
         for layer in data['layers']:
             if layer['type'] == "tilelayer":
                 for n in range(80):
                     self.tiles[n] = (layer['data'][n] - 1) & 0xFF
-                    if self.tiles[n] != layer['data'][n] - 1:
+                    if self.tiles[n] != layer['data'][n] - 1 and not shown_warning:
                         print("Warning: %s contains incorrect tile." % (filename))
+                        shown_warning = True
             elif layer['type'] == "objectgroup":
                 for obj in layer['objects']:
                     self.addObject((obj["x"] + obj["width"] // 2) // 16, (obj["y"] + obj["height"] // 2) // 16, obj["name"], obj["type"])
