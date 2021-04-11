@@ -148,7 +148,9 @@ class RoomData:
         for layer in data['layers']:
             if layer['type'] == "tilelayer":
                 for n in range(80):
-                    self.tiles[n] = max(0, layer['data'][n] - 1)
+                    self.tiles[n] = (layer['data'][n] - 1) & 0xFF
+                    if self.tiles[n] != layer['data'][n] - 1:
+                        print("Warning: %s contains incorrect tile." % (filename))
             elif layer['type'] == "objectgroup":
                 for obj in layer['objects']:
                     self.addObject((obj["x"] + obj["width"] // 2) // 16, (obj["y"] + obj["height"] // 2) // 16, obj["name"], obj["type"])
