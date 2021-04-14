@@ -687,7 +687,7 @@ def importRooms(rom, path):
             code += "jr nz, $512B\n"
     if len(overworld_warp_rooms) < 4:
         code += "jr $512B\n"
-    rom.patch(0x02, 0x110B, 0x111B, ASM(code, 0x510B))
+    rom.patch(0x02, 0x110B, 0x111B, ASM(code, 0x510B), fill_nop=True)
 
     for index, room in enumerate(overworld_warp_rooms):
         rom.banks[0x19][0x1C6A + room] = overworld_warp_rooms[(index + 1) % len(overworld_warp_rooms)]
