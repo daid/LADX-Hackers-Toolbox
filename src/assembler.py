@@ -329,7 +329,7 @@ class Assembler:
         self.__result.append(value)
 
     def insertRel8(self, expr):
-        if expr.isA('NUMBER'):
+        if expr.isA('NUMBER') and expr.value < 0x100:
             self.__result.append(expr.value)
         else:
             self.__link[len(self.__result)] = (Assembler.LINK_REL8, expr)

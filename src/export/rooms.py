@@ -5,6 +5,7 @@ import entityData
 import PIL.Image
 import constants
 import re as regex
+from assembler import ASM
 
 
 MINIMAP_TYPES = {
@@ -523,6 +524,8 @@ def importRooms(rom, path):
     # Clear out all the minimap data
     rom.banks[0x02][0x2479:0x2479+64*10] = b'\x7D' * 64 * 10
 
+    overworld_warp_rooms = []
+
     for room_index in ALL_ROOMS:
         if isinstance(room_index, str):
             roomfilename = "room%s.json" % (room_index)
@@ -620,6 +623,8 @@ def importRooms(rom, path):
         for x, y, name, objtype in data.objects:
             if objtype == 'ENTITY':
                 re.entities.append((x, y, entityData.NAME.index(name)))
+                if name == "WARP" and room_index < 0x100 and room_index != 0x0CE:
+                    overworld_warp_rooms.append(room_index)
             elif objtype == 'HIDDEN_TILE':
                 re.objects.insert(0, roomEditor.Object(x,y, int(name, 16)))
         for n in range(4):
@@ -671,3 +676,18 @@ def importRooms(rom, path):
                 re.animation_id = [int(v, 16) for v in m.groups()][0]
 
         re.store(rom)
+
+    assert len(overworld_warp_rooms) <= 4, "Only up to 4 overworld warps are supported: %s" % (["%03x" % (room) for room in overworld_warp_rooms])
+    code = ""
+    for index, room in enumerate(overworld_warp_rooms):
+        code += "cp $%02x\n" % (room)
+        if index < 3:
+            code += "jr z, $511B\n"
+        else:
+            code += "jr nz, $512B\n"
+    if len(overworld_warp_rooms) < 4:
+        code += "jr $512B\n"
+    rom.patch(0x02, 0x110B, 0x111B, ASM(code, 0x510B))
+
+    for index, room in enumerate(overworld_warp_rooms):
+        rom.banks[0x19][0x1C6A + room] = overworld_warp_rooms[(index + 1) % len(overworld_warp_rooms)]
