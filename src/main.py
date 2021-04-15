@@ -9,6 +9,9 @@ except ImportError:
 import argparse
 import sys
 import os
+import importlib.util
+import importlib.machinery
+
 import export.texts
 import export.rooms
 import patches.chest
@@ -37,6 +40,13 @@ def exportRomData(rom, path):
 def importRomData(rom, path):
     print("Importing data")
     export.rooms.importRooms(rom, os.path.join(path, "rooms"))
+
+    patchname = os.path.join(path, "patch.py")
+    if os.path.exists(patchname):
+        spec = importlib.util.spec_from_loader(patchname, importlib.machinery.SourceFileLoader(patchname, patchname))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.apply(rom)
 
 
 def main(argv):
