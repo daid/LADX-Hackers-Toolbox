@@ -40,6 +40,7 @@ def exportRomData(rom, path):
 def importRomData(rom, path):
     print("Importing data")
     export.rooms.importRooms(rom, os.path.join(path, "rooms"))
+    export.texts.importTexts(rom, os.path.join(path, "dialogs.txt"))
 
     patchname = os.path.join(path, "patch.py")
     if os.path.exists(patchname):
