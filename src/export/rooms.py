@@ -46,6 +46,35 @@ EVENT_ACTIONS = [
     "DROP_FAIRY",
 ]
 
+INDOOR_MACROS = {
+    # Key doors
+    0xEC: [(0, 0, 0x2D), (1, 0, 0x2E)],
+    0xED: [(0, 0, 0x2F), (1, 0, 0x30)],
+    0xEE: [(0, 0, 0x31), (0, 1, 0x32)],
+    0xEF: [(0, 0, 0x33), (0, 1, 0x34)],
+    # Closed doors
+    0xF0: [(0, 0, 0x35), (1, 0, 0x36)],
+    0xF1: [(0, 0, 0x37), (1, 0, 0x38)],
+    0xF2: [(0, 0, 0x39), (0, 1, 0x3A)],
+    0xF3: [(0, 0, 0x3B), (0, 1, 0x3C)],
+    # Open door
+    0xF4: [(0, 0, 0x43), (1, 0, 0x44)],
+    0xF5: [(0, 0, 0x8C), (1, 0, 0x08)],
+    0xF6: [(0, 0, 0x09), (0, 1, 0x0A)],
+    0xF7: [(0, 0, 0x0B), (0, 1, 0x0C)],
+
+    0xF8: [(0, 0, 0xA4), (1, 0, 0xA5)], # boss door
+    0xF9: [(0, 0, 0xAF), (1, 0, 0xB0)], # stairs door
+    0xFA: [(0, 0, 0xB1), (1, 0, 0xB2)], # flipwall
+    0xFB: [(0, 0, 0x45), (1, 0, 0x46)], # one way arrow
+    0xFC: [
+        (0, 0, 0xB3), (1, 0, 0xB4), (2, 0, 0xB4), (3, 0, 0xB5),
+        (0, 1, 0xB6), (1, 1, 0xB7), (2, 1, 0xB8), (3, 1, 0xB9),
+        (0, 2, 0xBA), (1, 2, 0xBB), (2, 2, 0xBC), (3, 2, 0xBD),
+    ],
+    0xFD: [(0, 0, 0xC1), (1, 0, 0xC2)],
+}
+
 class RoomTemplate:
     WALL_UP = 0x01
     WALL_DOWN = 0x02
@@ -261,70 +290,9 @@ def exportRooms(rom, path):
                         data.setTile(obj.x, obj.y + n, obj.type_id)
                 elif isinstance(obj, roomEditor.ObjectWarp):
                     pass
-                elif obj.type_id == 0xEC:  # key door
-                    data.setTile(obj.x, obj.y, 0x2D)
-                    data.setTile(obj.x + 1, obj.y, 0x2E)
-                elif obj.type_id == 0xED:
-                    data.setTile(obj.x, obj.y, 0x2F)
-                    data.setTile(obj.x + 1, obj.y, 0x30)
-                elif obj.type_id == 0xEE:
-                    data.setTile(obj.x, obj.y, 0x31)
-                    data.setTile(obj.x, obj.y + 1, 0x32)
-                elif obj.type_id == 0xEF:
-                    data.setTile(obj.x, obj.y, 0x33)
-                    data.setTile(obj.x, obj.y + 1, 0x34)
-                elif obj.type_id == 0xF0:  # closed door
-                    data.setTile(obj.x, obj.y, 0x35)
-                    data.setTile(obj.x + 1, obj.y, 0x36)
-                elif obj.type_id == 0xF1:
-                    data.setTile(obj.x, obj.y, 0x37)
-                    data.setTile(obj.x + 1, obj.y, 0x38)
-                elif obj.type_id == 0xF2:
-                    data.setTile(obj.x, obj.y, 0x39)
-                    data.setTile(obj.x, obj.y + 1, 0x3A)
-                elif obj.type_id == 0xF3:
-                    data.setTile(obj.x, obj.y, 0x3B)
-                    data.setTile(obj.x, obj.y + 1, 0x3C)
-                elif obj.type_id == 0xF4:  # open door
-                    data.setTile(obj.x, obj.y, 0x43)
-                    data.setTile(obj.x + 1, obj.y, 0x44)
-                elif obj.type_id == 0xF5:
-                    data.setTile(obj.x, obj.y, 0x8C)
-                    data.setTile(obj.x + 1, obj.y, 0x08)
-                elif obj.type_id == 0xF6:
-                    data.setTile(obj.x, obj.y, 0x09)
-                    data.setTile(obj.x, obj.y + 1, 0x0A)
-                elif obj.type_id == 0xF7:
-                    data.setTile(obj.x, obj.y, 0x0B)
-                    data.setTile(obj.x, obj.y + 1, 0x0C)
-                elif obj.type_id == 0xF8:  # boss door
-                    data.setTile(obj.x, obj.y, 0xA4)
-                    data.setTile(obj.x + 1, obj.y, 0xA5)
-                elif obj.type_id == 0xF9:  # stairs door
-                    data.setTile(obj.x, obj.y, 0xAF)
-                    data.setTile(obj.x + 1, obj.y, 0xB0)
-                elif obj.type_id == 0xFA:  # flipwall
-                    data.setTile(obj.x, obj.y, 0xB1)
-                    data.setTile(obj.x + 1, obj.y, 0xB2)
-                elif obj.type_id == 0xFB:  # one way arrow
-                    data.setTile(obj.x, obj.y, 0x45)
-                    data.setTile(obj.x + 1, obj.y, 0x46)
-                elif obj.type_id == 0xFC:  # entrance
-                    data.setTile(obj.x + 0, obj.y, 0xB3)
-                    data.setTile(obj.x + 1, obj.y, 0xB4)
-                    data.setTile(obj.x + 2, obj.y, 0xB4)
-                    data.setTile(obj.x + 3, obj.y, 0xB5)
-                    data.setTile(obj.x + 0, obj.y + 1, 0xB6)
-                    data.setTile(obj.x + 1, obj.y + 1, 0xB7)
-                    data.setTile(obj.x + 2, obj.y + 1, 0xB8)
-                    data.setTile(obj.x + 3, obj.y + 1, 0xB9)
-                    data.setTile(obj.x + 0, obj.y + 2, 0xBA)
-                    data.setTile(obj.x + 1, obj.y + 2, 0xBB)
-                    data.setTile(obj.x + 2, obj.y + 2, 0xBC)
-                    data.setTile(obj.x + 3, obj.y + 2, 0xBD)
-                elif obj.type_id == 0xFD:  # entrance
-                    data.setTile(obj.x, obj.y, 0xC1)
-                    data.setTile(obj.x + 1, obj.y, 0xC2)
+                elif obj.type_id in INDOOR_MACROS:
+                    for x, y, type_id in INDOOR_MACROS[obj.type_id]:
+                        data.setTile(obj.x + x, obj.y + y, type_id)
                 else:
                     data.setTile(obj.x, obj.y, obj.type_id)
 
@@ -514,7 +482,7 @@ def importRooms(rom, path):
         for mapdata in data["maps"]:
             x = mapdata["x"] // 160
             y = mapdata["y"] // 128
-            assert 0 <= x < 8 and 0 <= y < 8
+            assert 0 <= x < 8 and 0 <= y < 8, mapdata["fileName"]
             room = int(regex.match(r"room([0-9a-f]+)\.json", mapdata["fileName"]).group(1), 16)
             layout[x + y * 8] = room & 0xFF
             if minimapaddr is not None:
@@ -618,7 +586,23 @@ def importRooms(rom, path):
                             done[x + (y + n) * 10] = True
                     re.objects.append(roomEditor.ObjectVertical(x, y, obj, h))
                 else:
-                    re.objects.append(roomEditor.Object(x, y, obj))
+                    # Check if we might be able to place a macro
+                    macro = None
+                    for macro_id, macro_data in INDOOR_MACROS.items():
+                        if macro_data[0][2] == obj:
+                            ok = True
+                            for mx, my, mobj in macro_data:
+                                if x + mx >= 10 or y + my >= 8 or data.tiles[x + mx + (y + my) * 10] != mobj:
+                                    ok = False
+                                    break
+                            if ok:
+                                macro = macro_id
+                    if macro and re.room >= 0x100:
+                        re.objects.append(roomEditor.Object(x, y, macro))
+                        for mx, my, mobj in INDOOR_MACROS[macro]:
+                            done[x + mx + (y + my) * 10] = True
+                    else:
+                        re.objects.append(roomEditor.Object(x, y, obj))
 
         for x, y, name, objtype in data.objects:
             if objtype == 'ENTITY':
