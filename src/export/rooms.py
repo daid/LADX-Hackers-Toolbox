@@ -457,6 +457,8 @@ def exportRooms(rom, path):
                 event = rom.banks[0x14][room_nr - 0x100]
                 data.properties["EVENT_TRIGGER"] = EVENT_TRIGGERS[event & 0x1F]
                 data.properties["EVENT_ACTION"] = EVENT_ACTIONS[event >> 5]
+            if room_nr < 0x100:
+                data.properties["MUSIC"] = "%02x" % (rom.banks[0x02][room_nr])
 
         if isinstance(room_index, str):
             roomfilename = "room%s.json" % (room_index)
@@ -658,6 +660,9 @@ def importRooms(rom, path):
             m = regex.match(r"ZZ_sidescroll_([0-9a-f]+).png", data.tileset_image)
             if m and room_index >= 0x100:
                 re.animation_id = [int(v, 16) for v in m.groups()][0]
+
+            if room_index < 0x100 and "MUSIC" in data.properties:
+                rom.banks[0x02][room_index] = int(data.properties["MUSIC"], 16)
 
         re.store(rom)
 
