@@ -25,8 +25,11 @@ import patches.bank3f
 import patches.owl
 import patches.core
 import patches.aesthetics
+import patches.instrument
+import patches.inventory
 import assembler
 import roomEditor
+import backgroundEditor
 
 from romTables import ROMWithTables
 
@@ -109,6 +112,8 @@ def main(argv):
         patches.core.bugfixBossroomTopPush(rom)
         patches.core.bugfixWrittingWrongRoomStatus(rom)
         patches.aesthetics.allowColorDungeonSpritesEverywhere(rom)
+        patches.inventory.moreSlots(rom)
+        patches.instrument.fixInstruments(rom)
 
         # We need to fix up a few vanilla room warp orders, as updating these rooms changes the order of the warps
         re = roomEditor.RoomEditor(rom, 0x0A1)
