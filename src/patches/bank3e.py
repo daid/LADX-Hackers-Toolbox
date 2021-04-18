@@ -66,6 +66,7 @@ MainJumpTable:
         dw   GiveItemAndMessageForRoom    ; B
         dw   RenderItemForRoom            ; C
         dw   StartGameMarinMessage        ; D
+        dw   GetRoomItem                  ; E
 
 StartGameMarinMessage:
         ; Injection to reset our frame counter

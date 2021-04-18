@@ -45,7 +45,4 @@ def importTexts(rom, filename):
         text = cp.get(section, "text")
         ask = cp.get(section, "ask") if cp.has_option(section, "ask") else None
 
-        if ask:
-            rom.texts[index] = utils.formatText(text)
-        else:
-            rom.texts[index] = utils.formatText(text, ask=ask)
+        rom.texts[index] = utils.formatText(text, ask=ask)

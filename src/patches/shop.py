@@ -84,12 +84,14 @@ hasNoBombs:
     rom.patch(0x04, 0x3AA9, 0x3AAE, ASM("jp $7AC3"), fill_nop=True)
     rom.patch(0x04, 0x3AC3, 0x3AD8, ASM("""
         ; Call our chest item giving code.
-        ld   a, [$77C5]
-        ldh  [$F1], a
+        ld   a, $0E ; Get room item (in $FFF1)
+        rst  8
         ld   a, $02
         rst  8
-        ; Update the room status to mark first item as bought
-        ld   hl, $DAA1
+        ; Update the room status to mark first item as bought (assumes indoor2)
+        ld   h, $DA
+        ldh  a, [$F6]
+        ld   l, a
         ld   a, [hl]
         or   $10
         ld   [hl], a
@@ -98,12 +100,17 @@ hasNoBombs:
     rom.patch(0x04, 0x3A73, 0x3A7E, ASM("jp $7A91"), fill_nop=True)
     rom.patch(0x04, 0x3A91, 0x3AA9, ASM("""
         ; Call our chest item giving code.
-        ld   a, [$77C6]
+        ld   d, $02
+        ldh  a, [$F6]
+        ld   e, a
+        call $29ED ; Get chest item (in A)
         ldh  [$F1], a
         ld   a, $02
         rst  8
-        ; Update the room status to mark second item as bought
-        ld   hl, $DAA1
+        ; Update the room status to mark second item as bought (assumes indoor2)
+        ld   h, $DA
+        ldh  a, [$F6]
+        ld   l, a
         ld   a, [hl]
         or   $20
         ld   [hl], a
@@ -117,19 +124,22 @@ hasNoBombs:
     rom.patch(0x04, 0x3BD3, 0x3BE3, ASM("""
         jp   $7FD0
     """), fill_nop=True)
-    rom.patch(0x04, 0x3FD0, "00" * 42, ASM("""
+    rom.patch(0x04, 0x3FD0, "00" * 45, ASM("""
         ; Check if first key item
         and  a
         jr   nz, notShovel
-        ld   a, [$77C5]
-        ldh  [$F1], a
+        ld   a, $0E ; Get room item (in $FFF1)
+        rst  8
         ld   a, $01
         rst  8
         ret
 notShovel:
         cp   $04
         jr   nz, notBow
-        ld   a, [$77C6]
+        ld   d, $02
+        ldh  a, [$F6]
+        ld   e, a
+        call $29ED ; Get chest item (in A)
         ldh  [$F1], a
         ld   a, $01
         rst  8
