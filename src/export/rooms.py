@@ -3,6 +3,7 @@ import roomEditor
 import json
 import entityData
 import PIL.Image
+import PIL.ImageDraw
 import constants
 import re as regex
 from assembler import ASM
@@ -418,7 +419,7 @@ def exportRooms(rom, path):
                 tilemap[0x6C0:0x700] = rom.banks[0x2C][anim_addr:anim_addr + 0x40]
 
                 img = PIL.Image.new("P", (16*16, 16*16))
-                img.putpalette([255,255,255, 170,170,170, 85,85,85, 0,0,0])
+                img.putpalette([255,255,255, 170,170,170, 85,85,85, 0,0,0, 255,0,0])
                 def drawTile(x, y, index, attr):
                     for py in range(8):
                         a = tilemap[index * 16 + py * 2]
@@ -445,6 +446,15 @@ def exportRooms(rom, path):
                         drawTile(x * 16 + 8, y * 16 + 0, metatiles[1], attrtiles[1])
                         drawTile(x * 16 + 0, y * 16 + 8, metatiles[2], attrtiles[2])
                         drawTile(x * 16 + 8, y * 16 + 8, metatiles[3], attrtiles[3])
+                if room_index not in sidescroller_rooms:
+                    # Overlay some information about certain tiles
+                    draw = PIL.ImageDraw.Draw(img)
+                    for n, s in [
+                            (0x47, "B"), (0x48, "B"), (0x49, "B"), (0x4A, "B"),
+                            (0xA7, "P"),
+                            (0xBF, "H"),
+                        ] + [(tile, "X") for tile in INDOOR_MACROS.keys()]:
+                        draw.text(((n % 16) * 16 + 4, (n // 16) * 16), s, fill=4)
                 img.save(os.path.join(path, data.tileset_image))
 
         if room_index in minimap_data:
