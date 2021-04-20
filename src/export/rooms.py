@@ -469,6 +469,7 @@ def exportRooms(rom, path):
 
 def importRooms(rom, path):
     minimap_address_per_room = {}
+    map_per_room = {}
     for n in range(13):
         if n < 8:
             minimapaddr = 0x2479 + n * 64
@@ -489,12 +490,15 @@ def importRooms(rom, path):
             layout[x + y * 8] = room & 0xFF
             if minimapaddr is not None:
                 minimap_address_per_room[room] = minimapaddr + x + y * 8
+            if n < 12:
+                map_per_room[room] = n
         rom.banks[0x14][0x0220 + n * 64:0x0220 + n * 64+64] = layout
 
     # Clear out all the minimap data
     rom.banks[0x02][0x2479:0x2479+64*10] = b'\x7D' * 64 * 10
 
     overworld_warp_rooms = []
+    indoor_warp_rooms = {n: [] for n in range(8)}
 
     for room_index in ALL_ROOMS:
         if isinstance(room_index, str):
@@ -609,8 +613,11 @@ def importRooms(rom, path):
         for x, y, name, objtype in data.objects:
             if objtype == 'ENTITY':
                 re.entities.append((x, y, entityData.NAME.index(name)))
-                if name == "WARP" and room_index < 0x100 and room_index != 0x0CE:
-                    overworld_warp_rooms.append(room_index)
+                if name == "WARP":
+                    if room_index < 0x100 and room_index != 0x0CE:
+                        overworld_warp_rooms.append(room_index)
+                    elif room_index in map_per_room and map_per_room[room_index] < 8:
+                        indoor_warp_rooms[map_per_room[room_index]].append(room_index)
             elif objtype == 'HIDDEN_TILE':
                 re.objects.insert(0, roomEditor.Object(x,y, int(name, 16)))
         for n in range(4):
@@ -680,3 +687,8 @@ def importRooms(rom, path):
 
     for index, room in enumerate(overworld_warp_rooms):
         rom.banks[0x19][0x1C6A + room] = overworld_warp_rooms[(index + 1) % len(overworld_warp_rooms)]
+
+    for n in range(8):
+        assert len(indoor_warp_rooms[n]) < 3, "Dungeon %d has more then 2 miniboss warps: %s" % (n + 1, [hex(room) for room in indoor_warp_rooms[n]])
+        for idx, room in enumerate(indoor_warp_rooms[n]):
+            rom.banks[0x19][0x0201 + n * 2 + idx] = room & 0xFF
