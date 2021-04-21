@@ -591,6 +591,8 @@ def importRooms(rom, path):
                         ymax = y1
                 w = xmax - x + 1
                 h = ymax - y + 1
+                if re.overlay and obj in {0xE1, 0xE2, 0xE3, 0xBA}:
+                    w, h = 1, 1 # Do not encode entrances into strips
                 if w > h:
                     for n in range(w):
                         if data.tiles[x + n + y * 10] == obj:
