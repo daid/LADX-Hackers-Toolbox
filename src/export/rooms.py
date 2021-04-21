@@ -499,7 +499,9 @@ def importRooms(rom, path):
             room = int(regex.match(r"room([0-9a-f]+)\.json", mapdata["fileName"]).group(1), 16)
             layout[x + y * 8] = room & 0xFF
             if minimapaddr is not None:
-                minimap_address_per_room[room] = minimapaddr + x + y * 8
+                if room not in minimap_address_per_room:
+                    minimap_address_per_room[room] = []
+                minimap_address_per_room[room].append(minimapaddr + x + y * 8)
             if n < 12:
                 map_per_room[room] = n
         rom.banks[0x14][0x0220 + n * 64:0x0220 + n * 64+64] = layout
@@ -656,7 +658,8 @@ def importRooms(rom, path):
                 rom.banks[0x14][room_index - 0x100] = event
 
             if room_index in minimap_address_per_room:
-                rom.banks[0x02][minimap_address_per_room[room_index]] = [k for k, v in MINIMAP_TYPES.items() if v == data.properties["MINIMAP"]][0]
+                for addr in minimap_address_per_room[room_index]:
+                    rom.banks[0x02][addr] = [k for k, v in MINIMAP_TYPES.items() if v == data.properties["MINIMAP"]][0]
 
             m = regex.match(r"ZZ_overworld_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+).png", data.tileset_image)
             if m and room_index < 0x100:
