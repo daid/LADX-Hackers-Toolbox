@@ -28,6 +28,7 @@ import patches.aesthetics
 import patches.instrument
 import patches.inventory
 import patches.shop
+import patches.tarin
 import assembler
 import roomEditor
 import backgroundEditor
@@ -108,6 +109,7 @@ def main(argv):
         patches.aesthetics.allowColorDungeonSpritesEverywhere(rom)
         patches.inventory.moreSlots(rom)
         patches.instrument.fixInstruments(rom)
+        patches.tarin.updateTarin(rom)
         patches.shop.fixShop(rom)
 
         # We need to fix up a few vanilla room warp orders, as updating these rooms changes the order of the warps
