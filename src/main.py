@@ -106,6 +106,7 @@ def main(argv):
         patches.bank3f.addBank3F(rom)
         patches.core.bugfixBossroomTopPush(rom)
         patches.core.bugfixWrittingWrongRoomStatus(rom)
+        patches.aesthetics.noSwordMusic(rom)
         patches.aesthetics.allowColorDungeonSpritesEverywhere(rom)
         patches.inventory.moreSlots(rom)
         patches.instrument.fixInstruments(rom)
