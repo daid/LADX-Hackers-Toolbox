@@ -346,7 +346,7 @@ def updateSpriteData(rom):
                     pass
                 else:
                     print([hex(i) for x,y,i in r.entities])
-                    assert False, "%03x: %02x (%s %s)" % (room_nr, entity, values[idx], value)
+                    assert False, "Room: %03x cannot load graphics for entity: %02x (Index: %d Failed: %s, Active: %s)" % (room_nr, entity, idx, value, values[idx])
 
         data = bytearray()
         for v in values:
