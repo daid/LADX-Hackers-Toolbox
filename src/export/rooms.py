@@ -65,7 +65,7 @@ INDOOR_MACROS = {
     0xF7: [(0, 0, 0x0B), (0, 1, 0x0C)],
 
     0xF8: [(0, 0, 0xA4), (1, 0, 0xA5)], # boss door
-    0xF9: [(0, 0, 0xAF), (1, 0, 0xB0)], # stairs door
+    # 0xF9: [(0, 0, 0xAF), (1, 0, 0xB0)], # stairs door
     0xFA: [(0, 0, 0xB1), (1, 0, 0xB2)], # flipwall
     0xFB: [(0, 0, 0x45), (1, 0, 0x46)], # one way arrow
     0xFC: [
@@ -622,6 +622,7 @@ def importRooms(rom, path):
                         for mx, my, mobj in INDOOR_MACROS[macro]:
                             done[x + mx + (y + my) * 10] = True
                     else:
+                        done[x + y * 10] = True
                         re.objects.append(roomEditor.Object(x, y, obj))
 
         for x, y, name, objtype in data.objects:
