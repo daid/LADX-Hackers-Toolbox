@@ -30,7 +30,7 @@ def exportTexts(rom, filename):
     cp = configparser.ConfigParser()
     for index, text_data in enumerate(rom.texts):
         if isinstance(text_data, int):
-            break
+            continue
         section = "dialog_%03x" % (index)
         cp.add_section(section)
 
