@@ -16,11 +16,11 @@ def _decodeText(text_data):
     else:
         raise RuntimeError("Bad ROM?")
 
-    for k, v in utils.TEXT_SYMBOLS.items():
-        text_data = text_data.replace(bytes([v]), k)
     text = ""
     for n in range(0, len(text_data), 16):
         line = text_data[n:n + 16]
+        for k, v in utils.TEXT_SYMBOLS.items():
+            line = line.replace(bytes([v]), k)
         text = text + " " + line.decode("ascii").replace("^", "'")
         text = text.strip()
     return text, ask

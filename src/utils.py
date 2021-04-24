@@ -156,6 +156,8 @@ def formatText(s, *, center=False, ask=None):
     s = s.format(**_NAMES)
     s = s.encode("ascii")
     s = s.replace(b"'", b"^")
+    for k, v in TEXT_SYMBOLS.items():
+        s = s.replace(k, bytes([v]))
 
     def padLine(line):
         return line + b' ' * (16 - len(line))
