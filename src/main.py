@@ -20,6 +20,7 @@ import patches.heartPiece
 import patches.health
 import patches.overworld
 import patches.seashell
+import patches.goldenLeaf
 import patches.bank3e
 import patches.bank3f
 import patches.owl
@@ -110,6 +111,7 @@ def main(argv):
         patches.aesthetics.allowColorDungeonSpritesEverywhere(rom)
         patches.inventory.moreSlots(rom)
         patches.instrument.fixInstruments(rom)
+        patches.goldenLeaf.fixGoldenLeaf(rom)
         patches.tarin.updateTarin(rom)
         patches.shop.fixShop(rom)
 
