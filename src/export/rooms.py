@@ -186,7 +186,10 @@ class RoomData:
                         shown_warning = True
             elif layer['type'] == "objectgroup":
                 for obj in layer['objects']:
-                    self.addObject((obj["x"] + obj["width"] // 2) // 16, (obj["y"] + obj["height"] // 2) // 16, obj["name"], obj["type"])
+                    x = (obj["x"] + obj["width"] // 2) // 16
+                    y = (obj["y"] + obj["height"] // 2) // 16
+                    assert 0 <= x < 10 and 0 <= y < 8, "Object outside of room in %s" % (filename)
+                    self.addObject(x, y, obj["name"], obj["type"])
         for prop in data["properties"]:
             self.properties[prop["name"]] = prop["value"]
         self.tileset_image = data["tilesets"][0]["image"]
