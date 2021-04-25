@@ -661,6 +661,8 @@ def importRooms(rom, path):
             if room_index > 0x100 and "EVENT_TRIGGER" in data.properties:
                 event = EVENT_TRIGGERS.index(data.properties["EVENT_TRIGGER"])
                 event |= EVENT_ACTIONS.index(data.properties["EVENT_ACTION"]) << 5
+                if data.properties["EVENT_TRIGGER"] == "NONE" or data.properties["EVENT_ACTION"] == "NONE":
+                    event = 0
                 rom.banks[0x14][room_index - 0x100] = event
 
             if room_index in minimap_address_per_room:
