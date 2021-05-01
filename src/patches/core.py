@@ -9,6 +9,9 @@ def bugfixWrittingWrongRoomStatus(rom):
     # dungeons D1-D6. This fix should prevent this.
     rom.patch(0x02, 0x1D21, 0x1D3C, ASM("call $5B9F"), fill_nop=True)
 
+def fixEggDeathClearingItems(rom):
+    rom.patch(0x01, 0x1E79, ASM("cp $0A"), ASM("cp $08"))
+
 def bugfixBossroomTopPush(rom):
     rom.patch(0x14, 0x14D9, ASM("""
         ldh  a, [$99]
