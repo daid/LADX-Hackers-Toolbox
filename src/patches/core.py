@@ -84,7 +84,7 @@ def injectMainLoop(rom):
         rst  8
     """), fill_nop=True)
 
-def warpHome(rom):
+def warpHome(rom, room, x, y):
     # Patch the S&Q menu to allow 3 options
     rom.patch(0x01, 0x012A, 0x0150, ASM("""
         ld   hl, $C13F
@@ -176,7 +176,7 @@ noWrapDown:
         ld   [$DB96], a
         ret
         jp   $40BE  ; return to normal "return to game" handling
-    """ % (warp.room, warp.target_x, warp.target_y)), fill_nop=True)
+    """ % (room, x, y)), fill_nop=True)
 
 
     # Patch the S&Q screen to have 3 options.
