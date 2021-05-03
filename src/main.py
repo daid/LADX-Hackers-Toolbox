@@ -30,6 +30,7 @@ import patches.instrument
 import patches.inventory
 import patches.shop
 import patches.tarin
+import patches.witch
 import assembler
 import roomEditor
 import backgroundEditor
@@ -111,6 +112,7 @@ def main(argv):
         patches.aesthetics.noSwordMusic(rom)
         patches.aesthetics.allowColorDungeonSpritesEverywhere(rom)
         patches.inventory.moreSlots(rom)
+        patches.witch.updateWitch(rom)
         patches.instrument.fixInstruments(rom)
         patches.goldenLeaf.fixGoldenLeaf(rom)
         patches.tarin.updateTarin(rom)
