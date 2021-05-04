@@ -667,6 +667,7 @@ def importRooms(rom, path):
 
             if room_index in minimap_address_per_room:
                 for addr in minimap_address_per_room[room_index]:
+                    assert data.properties["MINIMAP"] in MINIMAP_TYPES.values(), hex(room_index)
                     rom.banks[0x02][addr] = [k for k, v in MINIMAP_TYPES.items() if v == data.properties["MINIMAP"]][0]
 
             m = regex.match(r"ZZ_overworld_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+)_([0-9a-f]+).png", data.tileset_image)

@@ -25,6 +25,7 @@ import patches.bank3e
 import patches.bank3f
 import patches.owl
 import patches.core
+import patches.softlock
 import patches.aesthetics
 import patches.instrument
 import patches.inventory
@@ -109,6 +110,7 @@ def main(argv):
         patches.core.bugfixBossroomTopPush(rom)
         patches.core.bugfixWrittingWrongRoomStatus(rom)
         patches.core.fixEggDeathClearingItems(rom)
+        patches.softlock.allowRaftGameWithoutFlippers(rom)
         patches.aesthetics.noSwordMusic(rom)
         patches.aesthetics.allowColorDungeonSpritesEverywhere(rom)
         patches.inventory.moreSlots(rom)
