@@ -14,6 +14,7 @@ import importlib.machinery
 
 import export.texts
 import export.rooms
+import export.map
 import patches.chest
 import patches.droppedKey
 import patches.heartPiece
@@ -43,12 +44,13 @@ def exportRomData(rom, path):
     print("Exporting data")
     export.texts.exportTexts(rom, os.path.join(path, "dialogs.txt"))
     export.rooms.exportRooms(rom, os.path.join(path, "rooms"))
-
+    export.map.exportMap(rom, os.path.join(path, "map.png"))
 
 def importRomData(rom, path):
     print("Importing data")
     export.rooms.importRooms(rom, os.path.join(path, "rooms"))
     export.texts.importTexts(rom, os.path.join(path, "dialogs.txt"))
+    export.map.importMap(rom, os.path.join(path, "map.png"))
 
     patchname = os.path.join(path, "patch.py")
     if os.path.exists(patchname):
